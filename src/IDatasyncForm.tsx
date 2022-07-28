@@ -1,7 +1,16 @@
 import React, { useState } from 'react'
 
 import './form.css'
-import { Form, DatePicker, Select, InputNumber, Transfer, Button } from 'antd'
+import {
+  Form,
+  DatePicker,
+  Select,
+  InputNumber,
+  Button,
+  Radio,
+  RadioChangeEvent,
+  Space,
+} from 'antd'
 import moment from 'moment'
 
 type DbEnc = 'utf8'
@@ -120,9 +129,11 @@ interface IProps {
 }
 
 const DatasyncForm: React.FunctionComponent<IProps> = props => {
+  const [sourceTableName, setSourceTableName] = useState<string>()
+  const [sourceTableList, setSourceTableList] = useState([
+    { sourceTableName: '1' },
+  ])
   const [form] = Form.useForm()
-  const targetKeys = props.datasourceList.map(item => item.sourcename)
-  const selectedKeys = targetKeys
   const onFinish = (values: any) => {
     let { creatTime } = values
     creatTime = moment(creatTime).unix()
@@ -131,6 +142,19 @@ const DatasyncForm: React.FunctionComponent<IProps> = props => {
 
   const onReset = () => {
     form.resetFields()
+    // props.onCancel()
+  }
+
+  const sourceDatasourceChange = (value: string) => {
+    const ds: any = props.datasourceList.find(item => (item.sourcename = value))
+    console.log(ds)
+    props.tableListFetcher(ds).then((res: any) => {
+      setSourceTableList(res)
+    })
+  }
+
+  const sourceTableChange = (e: RadioChangeEvent) => {
+    setSourceTableName(e.target.value)
   }
 
   const freqUnitSelector = (
@@ -148,24 +172,92 @@ const DatasyncForm: React.FunctionComponent<IProps> = props => {
   return (
     <div>
       <Form form={form} name="datasyncForm" onFinish={onFinish}>
-        <Form.Item>
-          <Transfer
-            dataSource={props.datasourceList}
-            titles={['数据源', '同步目标']}
-            targetKeys={targetKeys}
-            selectedKeys={selectedKeys}
-            showSelectAll={false}
-            operationStyle={{ pointerEvents: 'none' }}
-            render={item => item.databasename}
-          />
+        <Form.Item noStyle>
+          <Form.Item
+            name="sourceDatasource"
+            rules={[{ required: true, message: '请选择数据源' }]}
+            style={{
+              display: 'inline-block',
+              width: '40%',
+              marginRight: '20%',
+            }}>
+            <Select placeholder="选择数据源" onChange={sourceDatasourceChange}>
+              {props.datasourceList.map(item => {
+                return (
+                  <Select.Option value={item.sourcename} key={item.sourcename}>
+                    {item.databasename}
+                  </Select.Option>
+                )
+              })}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="destDatasource"
+            rules={[{ required: true, message: '请选择同步目标' }]}
+            style={{
+              display: 'inline-block',
+              width: '40%',
+            }}>
+            <Select placeholder="选择同步目标">
+              {props.datasourceList.map(item => {
+                return (
+                  <Select.Option value={item.sourcename} key={item.sourcename}>
+                    {item.databasename}
+                  </Select.Option>
+                )
+              })}
+            </Select>
+          </Form.Item>
+        </Form.Item>
+        <Form.Item noStyle>
+          <Form.Item
+            name="sourceTableName"
+            rules={[{ required: true, message: '请选择源数据表' }]}
+            style={{
+              display: 'inline-block',
+              width: '40%',
+            }}>
+            <div className="plane">
+              <Radio.Group value={sourceTableName} onChange={sourceTableChange}>
+                <Space direction="vertical">
+                  {sourceTableList?.map((item: any) => {
+                    return (
+                      <Radio
+                        value={item.sourceTableName}
+                        key={item.sourceTableName}>
+                        {item.sourceTableName}
+                      </Radio>
+                    )
+                  })}
+                </Space>
+              </Radio.Group>
+            </div>
+          </Form.Item>
+          <div className="arrow">
+            <img
+              src={require('./assets/img/arrow.png')}
+              alt=""
+              style={{ width: '20px', height: '20px' }}
+            />
+          </div>
+          <Form.Item
+            name="destTableName"
+            rules={[{ required: true, message: '请选择目标数据表' }]}
+            style={{
+              display: 'inline-block',
+              width: '40%',
+            }}>
+            <div className="plane"></div>
+          </Form.Item>
         </Form.Item>
         <Form.Item
-          //   label="开始时间："
+          label="开始时间"
           name="startTime"
           rules={[{ required: true, message: '请选择开始时间' }]}>
-          <DatePicker placeholder="请选择日期" style={{ width: '85%' }} />
+          <DatePicker placeholder="请选择日期" style={{ width: '100%' }} />
         </Form.Item>
-        <Form.Item>
+        <Form.Item label="同步频次" required>
           <span style={{ lineHeight: '32px' }}>每</span>
           <Form.Item
             name="frequency"
@@ -173,7 +265,7 @@ const DatasyncForm: React.FunctionComponent<IProps> = props => {
             noStyle>
             <InputNumber
               addonAfter={freqUnitSelector}
-              style={{ width: '85%' }}
+              style={{ width: '85%', margin: '0 2%' }}
             />
           </Form.Item>
           <span style={{ lineHeight: '32px' }}>/次</span>

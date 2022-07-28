@@ -5,19 +5,19 @@ import IDatasyncForm from './IDatasyncForm'
 function App() {
   const datasourceList: any = [
     {
-      host: '1',
-      databasename: '1',
-      sourcename: '1',
+      host: '1h',
+      databasename: '1d',
+      sourcename: '1s',
     },
     {
-      host: '2',
-      databasename: '2',
-      sourcename: '2',
+      host: '2h',
+      databasename: '2d',
+      sourcename: '2s',
     },
     {
-      host: '2',
-      databasename: '3',
-      sourcename: '3',
+      host: '3h',
+      databasename: '3d',
+      sourcename: '3s',
     },
   ]
   const tableListFetcher: any = {}
