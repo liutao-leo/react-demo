@@ -21,7 +21,9 @@ function App() {
     },
   ]
   const tableListFetcher: any = {}
-  const initMappings: any = []
+  // const initMappings: any = [
+  //   { sourceTableName: 1, destTableName: 2, frequency: 1, freqUnit: 'day' },
+  // ]
   const onConfirm = () => {}
   const onCancel = () => {}
   return (
@@ -30,7 +32,7 @@ function App() {
         <IDatasyncForm
           datasourceList={datasourceList}
           tableListFetcher={tableListFetcher}
-          initMappings={initMappings}
+          // initMappings={initMappings}
           onCancel={onCancel}
           onConfirm={onConfirm}
         />
